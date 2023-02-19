@@ -1,21 +1,18 @@
 package com.bookstore.cartservice.core.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "carts")
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Cart {
 
     @Id
@@ -23,9 +20,11 @@ public class Cart {
     @Getter
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name="quantity", nullable = false)
     @Getter
     @Setter
-    private Map<Long, Integer> items;
+    @ElementCollection
+    @MapKeyColumn(name="itemId")
+    private Map<UUID, Integer> items;
 
 }

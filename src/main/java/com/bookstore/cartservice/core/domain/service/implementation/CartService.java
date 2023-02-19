@@ -5,31 +5,37 @@ import com.bookstore.cartservice.core.domain.service.interfaces.ICartRepository;
 import com.bookstore.cartservice.core.domain.service.interfaces.ICartService;
 import com.bookstore.cartservice.port.cart.exception.CartNotFoundException;
 import com.bookstore.cartservice.port.cart.exception.ItemNotInCartException;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class CartService implements ICartService{
 
     @Autowired
     private ICartRepository cartRepository;
+
+
     @Override
     public Cart createCart(Long userId) {
-        Map<Long, Integer> items = new HashMap<>();
+        Map<UUID, Integer> items = new HashMap<>();
         Cart cart = new Cart(userId, items);
         return cartRepository.save(cart);
     }
 
     @Override
-    public Cart addToCart(Long userId, Long productId, int quantity) {
+    public Cart addToCart(Long userId, UUID productId, int quantity) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             cart = createCart(userId);
         }
-        Map<Long, Integer> tempCart = cart.getItems();
+        Map<UUID, Integer> tempCart = cart.getItems();
         tempCart.putIfAbsent(productId, quantity); //what happens if item is already in cart ?
         cart.setItems(tempCart);
         cartRepository.save(cart);
@@ -37,12 +43,12 @@ public class CartService implements ICartService{
     }
 
     @Override
-    public Cart updateCart(Long userId, Long productId, int quantity) throws CartNotFoundException, ItemNotInCartException {
+    public Cart updateCart(Long userId, UUID productId, int quantity) throws CartNotFoundException, ItemNotInCartException {
         Cart tempCart = cartRepository.findByUserId(userId);
         if (tempCart == null) {
             throw new CartNotFoundException();
         }
-        Map<Long, Integer> tempItems = tempCart.getItems();
+        Map<UUID, Integer> tempItems = tempCart.getItems();
         if (!tempItems.containsKey(productId)) {
             throw new ItemNotInCartException();
         }
@@ -55,7 +61,7 @@ public class CartService implements ICartService{
     public boolean clearCart(Long userId) throws CartNotFoundException {
         if (cartRepository.findByUserId(userId) != null) {
             Cart cart = cartRepository.findByUserId(userId);
-            cart.setItems(new HashMap<Long, Integer>());
+            cart.setItems(new HashMap<UUID, Integer>());
             cartRepository.save(cart);
         } else {
             throw new CartNotFoundException();
