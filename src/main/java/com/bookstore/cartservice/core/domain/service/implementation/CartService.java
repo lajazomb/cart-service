@@ -36,7 +36,12 @@ public class CartService implements ICartService{
             cart = createCart(userId);
         }
         Map<UUID, Integer> tempCart = cart.getItems();
-        tempCart.putIfAbsent(productId, quantity); //what happens if item is already in cart ?
+        if (tempCart.containsKey(productId)) {
+            int previousQuantity = tempCart.get(productId);
+            tempCart.put(productId, previousQuantity+quantity);
+        } else {
+            tempCart.putIfAbsent(productId, quantity);
+        }
         cart.setItems(tempCart);
         cartRepository.save(cart);
         return cart;
