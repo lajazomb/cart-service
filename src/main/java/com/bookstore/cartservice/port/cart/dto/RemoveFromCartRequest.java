@@ -5,8 +5,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class AddToCartRequest { //user product quantity
+public class RemoveFromCartRequest { //user product quantity
     private String userId;
     private UUID productId;
-    private int quantity;
 }

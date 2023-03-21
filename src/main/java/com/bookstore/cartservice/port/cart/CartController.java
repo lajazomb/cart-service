@@ -2,6 +2,10 @@ package com.bookstore.cartservice.port.cart;
 
 import com.bookstore.cartservice.core.domain.model.Cart;
 import com.bookstore.cartservice.core.domain.service.interfaces.ICartService;
+import com.bookstore.cartservice.port.cart.dto.AddToCartRequest;
+import com.bookstore.cartservice.port.cart.dto.RemoveFromCartRequest;
+import com.bookstore.cartservice.port.cart.dto.UpdateCartRequest;
+import com.bookstore.cartservice.port.cart.dto.UserDto;
 import com.bookstore.cartservice.port.cart.exception.*;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -28,34 +32,32 @@ public class CartController {
 
 
 
-    @PostMapping("/cart/{userId}")
-    public Cart createCart(@PathVariable Long userId) throws ErrorCreatingCartException {
-        Cart cart = cartService.createCart(userId);
+    @PostMapping("/cart/create")
+    public Cart createCart(@RequestBody UserDto userDto) throws ErrorCreatingCartException {
+        Cart cart = cartService.createCart(userDto.getUserId());
         if (cart == null) {
             throw new ErrorCreatingCartException();
         }
         return cart;
     }
 
-    @GetMapping("/cart/{userId}")
-    public Cart getCart(@PathVariable("userId") Long userId) throws CartNotFoundException {
-        return cartService.getCart(userId);
+    @GetMapping("/cart")
+    public Cart getCart(@RequestBody UserDto userDto) throws CartNotFoundException {
+        return cartService.getCart(userDto.getUserId());
     }
 
-    @DeleteMapping("/cart/{userId}")
-    public boolean clearCart(@PathVariable("userId") Long userId) throws CartNotFoundException {
-        return cartService.clearCart(userId);
+    @DeleteMapping("/cart")
+    public boolean clearCart(@RequestBody UserDto userDto) throws CartNotFoundException {
+        return cartService.clearCart(userDto.getUserId());
     }
 
 
-    @PostMapping("/cart/{userId}/{productId}/{quantity}")
-    public Cart addToCart(@PathVariable("userId") Long userId,
-                          @PathVariable("productId") UUID productId,
-                          @PathVariable("quantity") int quantity) throws ErrorAddingToCartException, ProductOutOfStockException {
+    @PostMapping("/cart")
+    public Cart addToCart(@RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException {
 
         StockCheckMessage msg = StockCheckMessage.builder()
-                .productId(productId)
-                .quantity(quantity)
+                .productId(addToCartRequest.getProductId())
+                .quantity(addToCartRequest.getQuantity())
                 .build();
 
         StockCheckResponse response = template.convertSendAndReceiveAsType(
@@ -69,19 +71,19 @@ public class CartController {
             throw new ErrorAddingToCartException();
         }
         if (response.isInStock()) {
-            return cartService.addToCart(userId, productId, quantity);
+            return cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity());
         }
         throw new ProductOutOfStockException();
     }
 
     @PutMapping("/cart/{userId}/{productId}/{quantity}")
-    public Cart updateCart(@PathVariable("userId") Long userId, @PathVariable("productId") UUID productId, @PathVariable("quantity") int quantity) throws ItemNotInCartException, CartNotFoundException {
-        return cartService.updateCart(userId, productId, quantity);
+    public Cart updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity());
     }
 
     @PutMapping("/cart/{userId}/{productId}")
-    public Cart removeFromCart(@PathVariable("userId") Long userId, @PathVariable("productId") UUID productId) throws ItemNotInCartException, CartNotFoundException {
-        return cartService.updateCart(userId, productId, 0);
+    public Cart removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0);
     }
 
 }

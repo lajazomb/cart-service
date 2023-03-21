@@ -18,7 +18,7 @@ public class Cart {
     @Id
     @Column(nullable = false)
     @Getter
-    private Long userId;
+    private String userId;
 
     @Column(name="quantity", nullable = false)
     @Getter
