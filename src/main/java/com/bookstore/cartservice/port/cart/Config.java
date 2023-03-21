@@ -15,10 +15,11 @@ public class Config {
     }
 
     @Bean
+    public DirectExchange userExchange() { return new DirectExchange("userservice.authuser"); }
+
+    @Bean
     public MessageConverter jackson2MessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
-
 
 }

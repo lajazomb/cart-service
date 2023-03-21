@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class CartController {
 
@@ -47,8 +47,12 @@ public class CartController {
         return cartService.clearCart(userId);
     }
 
+
     @PostMapping("/cart/{userId}/{productId}/{quantity}")
-    public Cart addToCart(@PathVariable("userId") Long userId, @PathVariable("productId") UUID productId, @PathVariable("quantity") int quantity) throws ErrorAddingToCartException, ProductOutOfStockException {
+    public Cart addToCart(@PathVariable("userId") Long userId,
+                          @PathVariable("productId") UUID productId,
+                          @PathVariable("quantity") int quantity) throws ErrorAddingToCartException, ProductOutOfStockException {
+
         StockCheckMessage msg = StockCheckMessage.builder()
                 .productId(productId)
                 .quantity(quantity)
@@ -60,6 +64,7 @@ public class CartController {
                 msg,
                 new ParameterizedTypeReference<>() {
                 });
+
         if (response == null) {
             throw new ErrorAddingToCartException();
         }
