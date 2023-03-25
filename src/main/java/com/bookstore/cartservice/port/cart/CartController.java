@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/api/v1/")
 @RestController
 public class CartController {
 
@@ -32,7 +32,7 @@ public class CartController {
 
 
 
-    @PostMapping("/cart/create")
+    @PostMapping("cart/create")
     public Cart createCart(@RequestBody UserDto userDto) throws ErrorCreatingCartException {
         Cart cart = cartService.createCart(userDto.getUserId());
         if (cart == null) {
@@ -41,18 +41,18 @@ public class CartController {
         return cart;
     }
 
-    @GetMapping("/cart")
+    @GetMapping("cart")
     public Cart getCart(@RequestBody UserDto userDto) throws CartNotFoundException {
         return cartService.getCart(userDto.getUserId());
     }
 
-    @DeleteMapping("/cart")
+    @DeleteMapping("cart")
     public boolean clearCart(@RequestBody UserDto userDto) throws CartNotFoundException {
         return cartService.clearCart(userDto.getUserId());
     }
 
 
-    @PostMapping("/cart")
+    @PostMapping("cart")
     public Cart addToCart(@RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException {
 
         StockCheckMessage msg = StockCheckMessage.builder()
@@ -76,12 +76,12 @@ public class CartController {
         throw new ProductOutOfStockException();
     }
 
-    @PutMapping("/cart/{userId}/{productId}/{quantity}")
+    @PutMapping("cart/{userId}/{productId}/{quantity}")
     public Cart updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
         return cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity());
     }
 
-    @PutMapping("/cart/{userId}/{productId}")
+    @PutMapping("cart/{userId}/{productId}")
     public Cart removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
         return cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0);
     }

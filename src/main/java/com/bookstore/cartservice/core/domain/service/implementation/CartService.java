@@ -68,10 +68,10 @@ public class CartService implements ICartService{
             Cart cart = cartRepository.findByUserId(userId);
             cart.setItems(new HashMap<UUID, Integer>());
             cartRepository.save(cart);
+            return true;
         } else {
             throw new CartNotFoundException();
         }
-        return true; //should it be void instead, as error handling would be done through the cartNotFoundException
     }
 
     @Override
