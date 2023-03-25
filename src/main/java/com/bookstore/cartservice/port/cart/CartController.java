@@ -41,9 +41,9 @@ public class CartController {
         return cart;
     }
 
-    @GetMapping("cart")
-    public Cart getCart(@RequestBody UserDto userDto) throws CartNotFoundException {
-        return cartService.getCart(userDto.getUserId());
+    @GetMapping("cart/user/{userid}")
+    public Cart getCart(@PathVariable UUID userid) throws CartNotFoundException {
+        return cartService.getCart(userid);
     }
 
     @DeleteMapping("cart")

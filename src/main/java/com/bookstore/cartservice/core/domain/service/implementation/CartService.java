@@ -23,14 +23,14 @@ public class CartService implements ICartService{
 
 
     @Override
-    public Cart createCart(String userId) {
+    public Cart createCart(UUID userId) {
         Map<UUID, Integer> items = new HashMap<>();
         Cart cart = new Cart(userId, items);
         return cartRepository.save(cart);
     }
 
     @Override
-    public Cart addToCart(String userId, UUID productId, int quantity) {
+    public Cart addToCart(UUID userId, UUID productId, int quantity) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             cart = createCart(userId);
@@ -48,7 +48,7 @@ public class CartService implements ICartService{
     }
 
     @Override
-    public Cart updateCart(String userId, UUID productId, int quantity) throws CartNotFoundException, ItemNotInCartException {
+    public Cart updateCart(UUID userId, UUID productId, int quantity) throws CartNotFoundException, ItemNotInCartException {
         Cart tempCart = cartRepository.findByUserId(userId);
         if (tempCart == null) {
             throw new CartNotFoundException();
@@ -63,7 +63,7 @@ public class CartService implements ICartService{
     }
 
     @Override
-    public boolean clearCart(String userId) throws CartNotFoundException {
+    public boolean clearCart(UUID userId) throws CartNotFoundException {
         if (cartRepository.findByUserId(userId) != null) {
             Cart cart = cartRepository.findByUserId(userId);
             cart.setItems(new HashMap<UUID, Integer>());
@@ -75,7 +75,7 @@ public class CartService implements ICartService{
     }
 
     @Override
-    public Cart getCart(String userId) throws CartNotFoundException {
+    public Cart getCart(UUID userId) throws CartNotFoundException {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             throw new CartNotFoundException();

@@ -10,14 +10,14 @@ import java.util.UUID;
 @Service
 public interface ICartService {
 
-    Cart createCart(String userId);
+    Cart createCart(UUID userId);
 
-    Cart addToCart(String userId, UUID productId, int quantity);
+    Cart addToCart(UUID userId, UUID productId, int quantity);
 
-    Cart updateCart(String userId, UUID productId, int quantity) throws CartNotFoundException, ItemNotInCartException;
+    Cart updateCart(UUID userId, UUID productId, int quantity) throws CartNotFoundException, ItemNotInCartException;
 
-    boolean clearCart(String userId) throws CartNotFoundException;
+    boolean clearCart(UUID userId) throws CartNotFoundException;
 
-    Cart getCart(String userId) throws CartNotFoundException;
+    Cart getCart(UUID userId) throws CartNotFoundException;
 
 }

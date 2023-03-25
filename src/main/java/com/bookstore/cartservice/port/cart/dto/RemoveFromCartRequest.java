@@ -6,6 +6,6 @@ import java.util.UUID;
 
 @Data
 public class RemoveFromCartRequest { //user product quantity
-    private String userId;
+    private UUID userId;
     private UUID productId;
 }
