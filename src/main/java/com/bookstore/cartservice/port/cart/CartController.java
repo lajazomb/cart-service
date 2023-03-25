@@ -73,12 +73,12 @@ public class CartController {
         throw new ProductOutOfStockException();
     }
 
-    @PutMapping("cart/{userId}/{productId}/{quantity}")
+    @PutMapping("cart/user/{userId}/product/{productId}/quantity/{quantity}")
     public ResponseEntity<Cart> updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
         return ResponseEntity.ok(cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity()));
     }
 
-    @PutMapping("cart/{userId}/{productId}")
+    @PutMapping("cart/user/{userId}/product/{productId}")
     public ResponseEntity<Cart> removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
         return ResponseEntity.ok(cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0));
     }
