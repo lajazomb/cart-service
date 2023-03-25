@@ -11,6 +11,7 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -46,9 +47,9 @@ public class CartController {
         return cartService.getCart(userid);
     }
 
-    @DeleteMapping("cart")
-    public boolean clearCart(@RequestBody UserDto userDto) throws CartNotFoundException {
-        return cartService.clearCart(userDto.getUserId());
+    @DeleteMapping("cart/user/{userid}")
+    public ResponseEntity<UUID> clearCart(@PathVariable UUID userid) throws CartNotFoundException {
+        return ResponseEntity.ok(userid);
     }
 
 
