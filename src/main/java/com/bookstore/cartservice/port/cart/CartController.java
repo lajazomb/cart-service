@@ -31,20 +31,18 @@ public class CartController {
 
     public static final String ROUTING_KEY = "cartservice.checkStock";
 
-
-
     @PostMapping("cart/create")
-    public Cart createCart(@RequestBody UserDto userDto) throws ErrorCreatingCartException {
+    public ResponseEntity<Cart> createCart(@RequestBody UserDto userDto) throws ErrorCreatingCartException {
         Cart cart = cartService.createCart(userDto.getUserId());
         if (cart == null) {
             throw new ErrorCreatingCartException();
         }
-        return cart;
+        return ResponseEntity.ok(cart);
     }
 
     @GetMapping("cart/user/{userid}")
-    public Cart getCart(@PathVariable UUID userid) throws CartNotFoundException {
-        return cartService.getCart(userid);
+    public ResponseEntity<Cart> getCart(@PathVariable UUID userid) throws CartNotFoundException {
+        return ResponseEntity.ok(cartService.getCart(userid));
     }
 
     @DeleteMapping("cart/user/{userid}")
@@ -52,10 +50,8 @@ public class CartController {
         return ResponseEntity.ok(userid);
     }
 
-
     @PostMapping("cart")
-    public Cart addToCart(@RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException {
-
+    public ResponseEntity<Cart> addToCart(@RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException {
         StockCheckMessage msg = StockCheckMessage.builder()
                 .productId(addToCartRequest.getProductId())
                 .quantity(addToCartRequest.getQuantity())
@@ -72,19 +68,18 @@ public class CartController {
             throw new ErrorAddingToCartException();
         }
         if (response.isInStock()) {
-            return cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity());
+            return ResponseEntity.ok(cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity()));
         }
         throw new ProductOutOfStockException();
     }
 
     @PutMapping("cart/{userId}/{productId}/{quantity}")
-    public Cart updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
-        return cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity());
+    public ResponseEntity<Cart> updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return ResponseEntity.ok(cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity()));
     }
 
     @PutMapping("cart/{userId}/{productId}")
-    public Cart removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
-        return cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0);
+    public ResponseEntity<Cart> removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return ResponseEntity.ok(cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0));
     }
-
 }
