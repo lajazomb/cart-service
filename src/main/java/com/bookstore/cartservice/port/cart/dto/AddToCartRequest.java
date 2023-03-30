@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Data
 public class AddToCartRequest { //user product quantity
-    private UUID userId;
-    private UUID productId;
+    private String userId;
+    private String productId;
     private int quantity;
 }

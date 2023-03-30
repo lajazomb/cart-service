@@ -15,8 +15,7 @@ public class JwtUtil {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String role;
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) { // yes, with the space after Bearer
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {// yes, with the space after Bearer
             return false;
         }
 

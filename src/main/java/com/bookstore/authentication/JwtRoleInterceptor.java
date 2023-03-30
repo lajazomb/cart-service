@@ -33,6 +33,6 @@ public class JwtRoleInterceptor implements HandlerInterceptor {
         if (!JwtUtil.allowRequest(request, environment.getProperty("jwt.secret"))) {
             throw new NotAuthorizedException();
         }
-        return HandlerInterceptor.super.preHandle(request, response, handler);
+        return true;
     }
 }

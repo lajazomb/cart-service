@@ -20,7 +20,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000/", allowedHeaders = "*", maxAge = 86400)
 @RestController
 public class CartController {
 
@@ -56,7 +56,7 @@ public class CartController {
     }
 
     @DeleteMapping("cart/user/{userid}")
-    public ResponseEntity<UUID> clearCart(@PathVariable UUID userid) throws CartNotFoundException {
+    public ResponseEntity<UUID> clearCart(@RequestHeader("Authorization") String token, @PathVariable UUID userid) throws CartNotFoundException, NotAuthorizedException {
         performUUIDCheck(token, userid);
         if (cartService.getCart(userid) != null) {
             cartService.clearCart(userid);
@@ -67,10 +67,11 @@ public class CartController {
 
     @PostMapping("cart")
     public ResponseEntity<Cart> addToCart(@RequestHeader("Authorization") String token, @RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException, NotAuthorizedException {
-        performUUIDCheck(token, addToCartRequest.getUserId());
+        System.out.println(addToCartRequest);
+        performUUIDCheck(token, UUID.fromString(addToCartRequest.getUserId()));
 
         StockCheckMessage msg = StockCheckMessage.builder()
-                .productId(addToCartRequest.getProductId())
+                .productId(UUID.fromString(addToCartRequest.getProductId()))
                 .quantity(addToCartRequest.getQuantity())
                 .build();
 
@@ -85,7 +86,7 @@ public class CartController {
             throw new ErrorAddingToCartException();
         }
         if (response.isInStock()) {
-            return ResponseEntity.ok(cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity()));        }
+            return ResponseEntity.ok(cartService.addToCart(UUID.fromString(addToCartRequest.getUserId()), UUID.fromString(addToCartRequest.getProductId()), addToCartRequest.getQuantity()));        }
 
         throw new ProductOutOfStockException();
     }
@@ -98,7 +99,7 @@ public class CartController {
     }
 
     @PutMapping("/cart/delete")
-    public Cart removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
+    public Cart removeFromCart(@RequestHeader("Authorization") String token, @RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException, NotAuthorizedException {
         performUUIDCheck(token, removeFromCartRequest.getUserId());
         return cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0);
     }
