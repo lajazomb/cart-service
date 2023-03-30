@@ -57,8 +57,13 @@ public class CartService implements ICartService{
         if (!tempItems.containsKey(productId)) {
             throw new ItemNotInCartException();
         }
-        tempItems.put(productId, quantity);
+        if (quantity == 0) {
+            tempItems.remove(productId);
+        } else {
+            tempItems.put(productId, quantity);
+        }
         tempCart.setItems(tempItems);
+        cartRepository.save(tempCart);
         return tempCart;
     }
 
