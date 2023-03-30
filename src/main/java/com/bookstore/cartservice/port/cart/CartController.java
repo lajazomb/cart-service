@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class CartController {
 
@@ -47,15 +48,20 @@ public class CartController {
 
     @DeleteMapping("cart/user/{userid}")
     public ResponseEntity<UUID> clearCart(@PathVariable UUID userid) throws CartNotFoundException {
-        return ResponseEntity.ok(userid);
+        if (cartService.getCart(userid) != null) {
+            cartService.clearCart(userid);
+            return ResponseEntity.ok(userid);
+        }
+        throw new CartNotFoundException();
     }
 
-    @PostMapping("cart")
+    @PostMapping("/cart")
     public ResponseEntity<Cart> addToCart(@RequestBody AddToCartRequest addToCartRequest) throws ErrorAddingToCartException, ProductOutOfStockException {
         StockCheckMessage msg = StockCheckMessage.builder()
                 .productId(addToCartRequest.getProductId())
                 .quantity(addToCartRequest.getQuantity())
                 .build();
+
 
         StockCheckResponse response = template.convertSendAndReceiveAsType(
                 "productservice.checkstock",
@@ -68,18 +74,19 @@ public class CartController {
             throw new ErrorAddingToCartException();
         }
         if (response.isInStock()) {
-            return ResponseEntity.ok(cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity()));
-        }
+            return ResponseEntity.ok(cartService.addToCart(addToCartRequest.getUserId(), addToCartRequest.getProductId(), addToCartRequest.getQuantity()));        }
+
         throw new ProductOutOfStockException();
     }
 
-    @PutMapping("cart/user/{userId}/product/{productId}/quantity/{quantity}")
-    public ResponseEntity<Cart> updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
-        return ResponseEntity.ok(cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity()));
+    @PutMapping("/cart/update")
+    public Cart updateCart(@RequestBody UpdateCartRequest updateCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return cartService.updateCart(updateCartRequest.getUserId(), updateCartRequest.getProductId(), updateCartRequest.getQuantity());
     }
 
-    @PutMapping("cart/user/{userId}/product/{productId}")
-    public ResponseEntity<Cart> removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
-        return ResponseEntity.ok(cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0));
+    @PutMapping("/cart/delete")
+    public Cart removeFromCart(@RequestBody RemoveFromCartRequest removeFromCartRequest) throws ItemNotInCartException, CartNotFoundException {
+        return cartService.updateCart(removeFromCartRequest.getUserId(), removeFromCartRequest.getProductId(), 0);
     }
+
 }
