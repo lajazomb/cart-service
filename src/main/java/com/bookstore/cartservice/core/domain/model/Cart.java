@@ -27,4 +27,8 @@ public class Cart {
     @MapKeyColumn(name="itemId")
     private Map<UUID, Integer> items;
 
+    @Override
+    public boolean equals(Object obj) {
+        return userId.equals(((Cart) obj).userId) && items.equals(((Cart) obj).items);
+    }
 }
